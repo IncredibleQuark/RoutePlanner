@@ -4,6 +4,7 @@ from Helpers import Map, load_map_10, load_map_40, show_map
 if __name__ == '__main__':
     # show_map(load_map_40(), 5, 34)
     planner = RoutePlanner(load_map_40(), 5, 34)
+    print(planner.path, "RESULT PATH")
     path = planner.path
     if path == [5, 16, 37, 12, 34]:
         print("great! Your code works for these inputs!")

@@ -21,8 +21,6 @@ class RoutePlanner:
 
     def reconstruct_path(self, current):
         """ Reconstructs path after search """
-        print(current, 'current in recons')
-        print(self.cameFrom, 'came FROM')
         total_path = [current]
         while current in self.cameFrom.keys():
             current = self.cameFrom[current]
@@ -58,44 +56,28 @@ class RoutePlanner:
 
         while not self.is_open_empty():
             current = self.get_current_node()
-            print(current, 'Current node')
 
             if current == self.goal:
-                print("SKAD PRZYSZLIUM")
-                # self.cameFrom[0] = 1
-                print(self.cameFrom)
-                if self.path is None:
-                    print("SCIEZKA JEST NICZYM")
-                # print(numpy.array(self.path))
                 self.path = [x for x in reversed(self.reconstruct_path(current))]
                 return self.path
             else:
-                print("REMOVE FROM OPEN ADD TO CLOSED", current)
                 self.openSet.remove(current)
                 self.closedSet.add(current)
 
             for neighbor in self.get_neighbors(current):
                 if neighbor in self.closedSet:
-                    print("CLOSED ALREADY EVALUATED NEIBOR: ", neighbor)
                     continue  # Ignore the neighbor which is already evaluated.
 
                 if not neighbor in self.openSet:  # Discover a new node
-                    print("ADD NEW NEIGHBOR TO OPEN: ", neighbor)
                     self.openSet.add(neighbor)
 
-                print('NEIGHBOR GO NEXT: ', neighbor)
                 # The distance from start to a neighbor
                 # the "dist_between" function may vary as per the solution requirements.
-                print(self.get_tentative_gScore(current, neighbor), 'SELF TANTATI')
-                print(self.get_gScore(neighbor), 'SCORE NEIGHBOR')
                 if self.get_tentative_gScore(current, neighbor) >= self.get_gScore(neighbor):
-                    print("NIE JEST LEPSZA SCIEZKA")
                     continue  # This is not a better path.
 
-                print('RECORDING')
                 # This path is the best until now. Record it!
                 self.record_best_path_to(current, neighbor)
-        print("No Path Found")
         self.path = None
         return False
 
@@ -108,10 +90,10 @@ class RoutePlanner:
         """ Creates and returns a data structure suitable to hold the set of currently discovered nodes
         that are not evaluated yet. Initially, only the start node is known."""
 
-        open_set = set()
         if self.start is not None:
             # TODO: return a data structure suitable to hold the set of currently discovered nodes
             # that are not evaluated yet. Make sure to include the start node.
+            open_set = set()
             open_set.add(self.start)
             self.openSet = open_set
             return self.openSet
@@ -129,21 +111,35 @@ class RoutePlanner:
 
     def create_gScore(self):
         """Creates and returns a data structure that holds the cost of getting from the start node to that node,
-        for each node. The cost of going from start to start is zero."""
-        # TODO:  return a data structure that holds the cost of getting from the start node to that node, for each node.
-        # for each node. The cost of going from start to start is zero. The rest of the node's values should
-        # be set to infinity.
-        return {}
+        for each node. The cost of going from start to start is zero. The rest of the node's values should
+        # be set to infinity."""
+        arr_gScore = []
+
+        for i in range(len(self.map.intersections)):
+            gScore = {}
+            for j in range(len(self.map.intersections)):
+                if i == j:
+                    gScore[j] = 0
+                else:
+                    gScore[j] = float('inf')
+
+            arr_gScore.append(gScore)
+
+        return arr_gScore
 
     def create_fScore(self):
         """Creates and returns a data structure that holds the total cost of getting from the start node to the goal
         by passing by that node, for each node. That value is partly known, partly heuristic.
-        For the first node, that value is completely heuristic."""
-        # TODO: return a data structure that holds the total cost of getting from the start node to the goal
-        # by passing by that node, for each node. That value is partly known, partly heuristic.
-        # For the first node, that value is completely heuristic. The rest of the node's value should be
-        # set to infinity.
-        return {}
+        For the first node, that value is completely heuristic. The rest of the node's value should be
+        # set to infinity."""
+        fScore = {}
+        for i in range(self.goal):
+            if i == self.start:
+                fScore[i] = self.heuristic_cost_estimate(i)
+            else:
+                fScore[i] = float('inf')
+
+        return fScore
 
     def set_map(self, M):
         """Method used to set map attribute """
@@ -157,12 +153,12 @@ class RoutePlanner:
         self._reset()
         self.start = start
         self.goal = None
-        self.closedSet = None
-        self.openSet = None
-        self.cameFrom = None
-        self.gScore = None
-        self.fScore = None
-        self.path = None
+        # self.closedSet = None
+        # self.openSet = None
+        # self.cameFrom = None
+        # self.gScore = None
+        # self.fScore = None
+        # self.path = None
 
     def set_goal(self, goal):
         """Method used to set goal attribute """
@@ -171,14 +167,12 @@ class RoutePlanner:
 
     def is_open_empty(self):
         """returns True if the open set is empty. False otherwise. """
-        if self.openSet is None:
-            return True
-        return False
+        return self.openSet is None
 
     def get_current_node(self):
         """ Returns the node in the open set with the lowest value of f(node)."""
         minimum = float("inf")
-        print("GET CURRET NODE _ OPEN SET", self.openSet)
+        new_min_node = -1
         for val in self.openSet:
             fscore = self.calculate_fscore(val)
             if fscore < minimum:
@@ -192,8 +186,8 @@ class RoutePlanner:
 
     def get_gScore(self, node):
         """Returns the g Score of a node"""
-        self.gScore = self.distance(self.start, node)
-        return self.gScore
+        # self.gScore = self.distance(self.start, node)
+        return self.gScore[self.start][node]
 
     def distance(self, node_1, node_2):
         """ Computes the Euclidean L2 Distance"""
@@ -219,6 +213,5 @@ class RoutePlanner:
     def record_best_path_to(self, current, neighbor):
         """Record the best path to a node """
         self.cameFrom[neighbor] = current
-        self.gScore = self.get_tentative_gScore(current, neighbor)
-        self.fScore = self.calculate_fscore(neighbor)
-        print(self.cameFrom, 'saving came from')
+        self.gScore[self.start][neighbor] = self.get_tentative_gScore(current, neighbor)
+        self.fScore[neighbor] = self.calculate_fscore(neighbor)
