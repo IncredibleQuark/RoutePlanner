@@ -1,8 +1,7 @@
 from RoutePlanner import RoutePlanner
-from Helpers import Map, load_map_10, load_map_40, show_map
+from Helpers import load_map_40
 
 if __name__ == '__main__':
-    # show_map(load_map_40(), 5, 34)
     planner = RoutePlanner(load_map_40(), 5, 34)
     print(planner.path, "RESULT PATH")
     path = planner.path
