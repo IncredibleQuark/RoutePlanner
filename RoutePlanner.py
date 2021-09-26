@@ -113,33 +113,19 @@ class RoutePlanner:
         """Creates and returns a data structure that holds the cost of getting from the start node to that node,
         for each node. The cost of going from start to start is zero. The rest of the node's values should
         # be set to infinity."""
-        arr_gScore = []
-
-        for i in range(len(self.map.intersections)):
-            gScore = {}
-            for j in range(len(self.map.intersections)):
-                if i == j:
-                    gScore[j] = 0
-                else:
-                    gScore[j] = float('inf')
-
-            arr_gScore.append(gScore)
-
-        return arr_gScore
+        gs = dict(zip(range(len(self.map.intersections)), [float('inf') for i in range(len(self.map.intersections))]))
+        gs[self.start] = 0
+        return gs
 
     def create_fScore(self):
         """Creates and returns a data structure that holds the total cost of getting from the start node to the goal
         by passing by that node, for each node. That value is partly known, partly heuristic.
         For the first node, that value is completely heuristic. The rest of the node's value should be
         # set to infinity."""
-        fScore = {}
-        for i in range(self.goal):
-            if i == self.start:
-                fScore[i] = self.heuristic_cost_estimate(i)
-            else:
-                fScore[i] = float('inf')
+        fs = dict(zip(range(len(self.map.intersections)), [float('inf') for i in range(len(self.map.intersections))]))
+        fs[0] = 0
 
-        return fScore
+        return fs
 
     def set_map(self, M):
         """Method used to set map attribute """
@@ -153,12 +139,12 @@ class RoutePlanner:
         self._reset()
         self.start = start
         self.goal = None
-        # self.closedSet = None
-        # self.openSet = None
-        # self.cameFrom = None
-        # self.gScore = None
-        # self.fScore = None
-        # self.path = None
+        self.closedSet = None
+        self.openSet = None
+        self.cameFrom = None
+        self.gScore = None
+        self.fScore = None
+        self.path = None
 
     def set_goal(self, goal):
         """Method used to set goal attribute """
@@ -186,8 +172,9 @@ class RoutePlanner:
 
     def get_gScore(self, node):
         """Returns the g Score of a node"""
-        # self.gScore = self.distance(self.start, node)
-        return self.gScore[self.start][node]
+        print("GGET FOR", node)
+        return self.gScore[node]
+        # return self.gScore[self.start][node]
 
     def distance(self, node_1, node_2):
         """ Computes the Euclidean L2 Distance"""
@@ -213,5 +200,5 @@ class RoutePlanner:
     def record_best_path_to(self, current, neighbor):
         """Record the best path to a node """
         self.cameFrom[neighbor] = current
-        self.gScore[self.start][neighbor] = self.get_tentative_gScore(current, neighbor)
+        self.gScore[neighbor] = self.get_tentative_gScore(current, neighbor)
         self.fScore[neighbor] = self.calculate_fscore(neighbor)
