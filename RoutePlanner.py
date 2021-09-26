@@ -1,5 +1,4 @@
 import math
-import numpy
 
 
 # When you write your methods correctly this cell will execute
@@ -172,9 +171,7 @@ class RoutePlanner:
 
     def get_gScore(self, node):
         """Returns the g Score of a node"""
-        print("GGET FOR", node)
         return self.gScore[node]
-        # return self.gScore[self.start][node]
 
     def distance(self, node_1, node_2):
         """ Computes the Euclidean L2 Distance"""
