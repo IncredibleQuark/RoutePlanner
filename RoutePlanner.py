@@ -122,7 +122,7 @@ class RoutePlanner:
         For the first node, that value is completely heuristic. The rest of the node's value should be
         # set to infinity."""
         fs = dict(zip(self.map.intersections.keys(), [float('inf') for i in range(len(self.map.intersections))]))
-        fs[0] = 0
+        fs[self.start] = self.heuristic_cost_estimate(self.start)
 
         return fs
 
@@ -152,18 +152,12 @@ class RoutePlanner:
 
     def is_open_empty(self):
         """returns True if the open set is empty. False otherwise. """
-        return self.openSet is None
+        return not self.openSet
 
     def get_current_node(self):
         """ Returns the node in the open set with the lowest value of f(node)."""
-        minimum = float("inf")
-        new_min_node = -1
-        for val in self.openSet:
-            fscore = self.calculate_fscore(val)
-            if fscore < minimum:
-                new_min_node = val
-                minimum = fscore
-        return new_min_node
+        return min(self.openSet, key=self.fScore.get)
+
 
     def get_neighbors(self, node):
         """Returns the neighbors of a node"""
@@ -192,10 +186,7 @@ class RoutePlanner:
     def calculate_fscore(self, node):
         """Calculate the f score of a node. """
         # REMEMBER F = G + H
-        if self.fScore[node] != float('inf'):
-            return self.fScore[node]
-        else:
-            return self.get_gScore(node) + self.heuristic_cost_estimate(node)
+        return self.get_gScore(node) + self.heuristic_cost_estimate(node)
 
     def record_best_path_to(self, current, neighbor):
         """Record the best path to a node """
