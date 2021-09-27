@@ -90,7 +90,7 @@ class RoutePlanner:
         that are not evaluated yet. Initially, only the start node is known."""
 
         if self.start is not None:
-            # TODO: return a data structure suitable to hold the set of currently discovered nodes
+            # Return a data structure suitable to hold the set of currently discovered nodes
             # that are not evaluated yet. Make sure to include the start node.
             open_set = set()
             open_set.add(self.start)
@@ -112,7 +112,7 @@ class RoutePlanner:
         """Creates and returns a data structure that holds the cost of getting from the start node to that node,
         for each node. The cost of going from start to start is zero. The rest of the node's values should
         # be set to infinity."""
-        gs = dict(zip(range(len(self.map.intersections)), [float('inf') for i in range(len(self.map.intersections))]))
+        gs = dict(zip(self.map.intersections.keys(), [float('inf') for i in range(len(self.map.intersections))]))
         gs[self.start] = 0
         return gs
 
@@ -121,7 +121,7 @@ class RoutePlanner:
         by passing by that node, for each node. That value is partly known, partly heuristic.
         For the first node, that value is completely heuristic. The rest of the node's value should be
         # set to infinity."""
-        fs = dict(zip(range(len(self.map.intersections)), [float('inf') for i in range(len(self.map.intersections))]))
+        fs = dict(zip(self.map.intersections.keys(), [float('inf') for i in range(len(self.map.intersections))]))
         fs[0] = 0
 
         return fs
@@ -192,7 +192,10 @@ class RoutePlanner:
     def calculate_fscore(self, node):
         """Calculate the f score of a node. """
         # REMEMBER F = G + H
-        return self.get_gScore(node) + self.heuristic_cost_estimate(node)
+        if self.fScore[node] != float('inf'):
+            return self.fScore[node]
+        else:
+            return self.get_gScore(node) + self.heuristic_cost_estimate(node)
 
     def record_best_path_to(self, current, neighbor):
         """Record the best path to a node """
